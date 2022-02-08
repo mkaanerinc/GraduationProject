@@ -20,6 +20,7 @@ namespace Core.DataAccess
     {
         List<T> GetAll(Expression<Func<T,bool>> predicate = null);
         T Get(Expression<Func<T, bool>> predicate);
+        T Find(int entityId);
         void Add(T entity);
         void Update(T entity);
         void Delete(T entity);

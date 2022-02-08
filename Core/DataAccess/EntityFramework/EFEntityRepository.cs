@@ -39,6 +39,14 @@ namespace Core.DataAccess.EntityFramework
             }
         }
 
+        public TEntity Find(int entityId)
+        {
+            using (TContext context = new TContext())
+            {
+                return context.Set<TEntity>().Find(entityId);
+            }
+        }
+
         public TEntity Get(Expression<Func<TEntity, bool>> predicate)
         {
             using (TContext context = new TContext())
