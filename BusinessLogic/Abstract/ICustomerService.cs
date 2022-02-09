@@ -1,4 +1,5 @@
-﻿using Entity.Concrete;
+﻿using Core.Utilities.Results.Abstract;
+using Entity.Concrete;
 using Entity.DTOs;
 using System;
 using System.Collections.Generic;
@@ -8,8 +9,12 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.Abstract
 {
-    public interface ICustomerService : IGenericService<Customer, CustomerDto>
+    public interface ICustomerService<Customer, CustomerDto>
     {
-        
+        IDataResult<List<CustomerDto>> GetAll();
+        IDataResult<CustomerDto> Find(int customerId);
+        IResult Add(CustomerDto customer);
+        IResult Delete(CustomerDto customer);
+        IResult Update(CustomerDto customer);
     }
 }

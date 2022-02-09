@@ -1,4 +1,5 @@
-﻿using Entity.Concrete;
+﻿using Core.Utilities.Results.Abstract;
+using Entity.Concrete;
 using Entity.DTOs;
 using System;
 using System.Collections.Generic;
@@ -8,8 +9,12 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.Abstract
 {
-    public interface IPaymentMethodService : IGenericService<PaymentMethod, PaymentMethodDto>
+    public interface IPaymentMethodService<PaymentMethod, PaymentMethodDto>
     {
-        
+        IDataResult<List<PaymentMethodDto>> GetAll();
+        IDataResult<PaymentMethodDto> Find(int paymentMethodId);
+        IResult Add(PaymentMethodDto paymentMethod);
+        IResult Delete(PaymentMethodDto paymentMethod);
+        IResult Update(PaymentMethodDto paymentMethod);
     }
 }
