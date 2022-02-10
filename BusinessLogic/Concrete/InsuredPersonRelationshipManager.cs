@@ -1,6 +1,8 @@
 ﻿using BusinessLogic.Abstract;
 using BusinessLogic.Constants;
 using BusinessLogic.MappingRules.AutoMapper;
+using BusinessLogic.ValidationRules.FluentValidation;
+using Core.CrossCuttingConcerns.Validation.FluentValidation;
 using Core.Utilities.Business;
 using Core.Utilities.Results.Abstract;
 using Core.Utilities.Results.Concrete;
@@ -30,6 +32,8 @@ namespace BusinessLogic.Concrete
         {
             try
             {
+                ValidationTool.Validate(new InsuredPersonRelationshipValidator(), item);
+
                 IResult result = BusinessRules.Run(
                     CheckIfInsuredPersonRelationshipExists(item.InsuredPersonRelationshipName)
                     );
@@ -113,6 +117,8 @@ namespace BusinessLogic.Concrete
         {
             try
             {
+                ValidationTool.Validate(new InsuredPersonRelationshipValidator(), item);
+
                 IResult result = BusinessRules.Run(
                     CheckIfInsuredPersonRelationshipExists(item.InsuredPersonRelationshipName)
                     );

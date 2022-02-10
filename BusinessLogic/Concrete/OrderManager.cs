@@ -1,6 +1,8 @@
 ﻿using BusinessLogic.Abstract;
 using BusinessLogic.Constants;
 using BusinessLogic.MappingRules.AutoMapper;
+using BusinessLogic.ValidationRules.FluentValidation;
+using Core.CrossCuttingConcerns.Validation.FluentValidation;
 using Core.Utilities.Business;
 using Core.Utilities.Results.Abstract;
 using Core.Utilities.Results.Concrete;
@@ -39,6 +41,8 @@ namespace BusinessLogic.Concrete
         {
             try
             {
+                ValidationTool.Validate(new OrderValidator(), item);
+
                 IResult result = BusinessRules.Run(
                     CheckIfOrderPriceCorrect(item.ProductId, item.CustomerId, item.OrderPrice)
                     );
@@ -124,6 +128,8 @@ namespace BusinessLogic.Concrete
         {
             try
             {
+                ValidationTool.Validate(new OrderValidator(), item);
+
                 IResult result = BusinessRules.Run(
                     CheckIfOrderPriceCorrect(item.ProductId,item.CustomerId,item.OrderPrice)
                     );
