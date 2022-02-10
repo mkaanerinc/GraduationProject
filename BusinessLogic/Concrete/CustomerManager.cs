@@ -32,23 +32,60 @@ namespace BusinessLogic.Concrete
 
         public IResult Delete(CustomerDto item)
         {
-            _customerDal.Delete(MapperTool.Mapper.Map<CustomerDto, Customer>(item));
+            try
+            {
+                _customerDal.Delete(MapperTool.Mapper.Map<CustomerDto, Customer>(item));
 
-            return new SuccessResult(Messages.ItemDeleted);
+                return new SuccessResult(Messages.ItemDeleted);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IDataResult<CustomerDto> Find(int itemId)
         {
-            var result = MapperTool.Mapper.Map<Customer, CustomerDto>(_customerDal.Find(itemId));
+            try
+            {
+                var result = MapperTool.Mapper.Map<Customer, CustomerDto>(_customerDal.Find(itemId));
 
-            return new SuccessDataResult<CustomerDto>(result, Messages.ItemListed);
+                if (result is null)
+                {
+                    return new ErrorDataResult<CustomerDto>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<CustomerDto>(result, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<CustomerDto>(ex.Message);
+            }
+            
         }
 
         public IDataResult<List<CustomerDto>> GetAll()
         {
-            var resultList = MapperTool.Mapper.Map<List<Customer>, List<CustomerDto>>(_customerDal.GetAll());
+            try
+            {
+                var resultList = MapperTool.Mapper.Map<List<Customer>, List<CustomerDto>>(_customerDal.GetAll());
 
-            return new SuccessDataResult<List<CustomerDto>>(resultList, Messages.ItemListed);
+                if (resultList is null)
+                {
+                    return new ErrorDataResult<List<CustomerDto>>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<List<CustomerDto>>(resultList, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<List<CustomerDto>>(ex.Message);
+
+            }
+            
         }
 
         public IResult Update(CustomerDto item)

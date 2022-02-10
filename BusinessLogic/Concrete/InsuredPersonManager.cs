@@ -32,23 +32,60 @@ namespace BusinessLogic.Concrete
 
         public IResult Delete(InsuredPersonDto item)
         {
-            _insuredPersonDal.Delete(MapperTool.Mapper.Map<InsuredPersonDto, InsuredPerson>(item));
+            try
+            {
+                _insuredPersonDal.Delete(MapperTool.Mapper.Map<InsuredPersonDto, InsuredPerson>(item));
 
-            return new SuccessResult(Messages.ItemDeleted);
+                return new SuccessResult(Messages.ItemDeleted);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IDataResult<InsuredPersonDto> Find(int itemId)
         {
-            var result = MapperTool.Mapper.Map<InsuredPerson, InsuredPersonDto>(_insuredPersonDal.Find(itemId));
+            try
+            {
+                var result = MapperTool.Mapper.Map<InsuredPerson, InsuredPersonDto>(_insuredPersonDal.Find(itemId));
 
-            return new SuccessDataResult<InsuredPersonDto>(result, Messages.ItemListed);
+                if(result is null)
+                {
+                    return new ErrorDataResult<InsuredPersonDto>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<InsuredPersonDto>(result, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<InsuredPersonDto>(ex.Message);
+            }
+            
         }
 
         public IDataResult<List<InsuredPersonDto>> GetAll()
         {
-            var resultList = MapperTool.Mapper.Map<List<InsuredPerson>, List<InsuredPersonDto>>(_insuredPersonDal.GetAll());
+            try
+            {
+                var resultList = MapperTool.Mapper.Map<List<InsuredPerson>, List<InsuredPersonDto>>(_insuredPersonDal.GetAll());
 
-            return new SuccessDataResult<List<InsuredPersonDto>>(resultList, Messages.ItemListed);
+                if(resultList is null)
+                {
+                    return new ErrorDataResult<List<InsuredPersonDto>>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<List<InsuredPersonDto>>(resultList, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<List<InsuredPersonDto>>(ex.Message);
+            }
+           
         }
 
         public IResult Update(InsuredPersonDto item)

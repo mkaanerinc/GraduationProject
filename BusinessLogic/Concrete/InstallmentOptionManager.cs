@@ -32,23 +32,60 @@ namespace BusinessLogic.Concrete
 
         public IResult Delete(InstallmentOptionDto item)
         {
-            _installmentOptionDal.Delete(MapperTool.Mapper.Map<InstallmentOptionDto, InstallmentOption>(item));
+            try
+            {
+                _installmentOptionDal.Delete(MapperTool.Mapper.Map<InstallmentOptionDto, InstallmentOption>(item));
 
-            return new SuccessResult(Messages.ItemDeleted);
+                return new SuccessResult(Messages.ItemDeleted);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IDataResult<InstallmentOptionDto> Find(int itemId)
         {
-            var result = MapperTool.Mapper.Map<InstallmentOption, InstallmentOptionDto>(_installmentOptionDal.Find(itemId));
+            try
+            {
+                var result = MapperTool.Mapper.Map<InstallmentOption, InstallmentOptionDto>(_installmentOptionDal.Find(itemId));
 
-            return new SuccessDataResult<InstallmentOptionDto>(result, Messages.ItemListed);
+                if(result is null)
+                {
+                    return new ErrorDataResult<InstallmentOptionDto>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<InstallmentOptionDto>(result, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<InstallmentOptionDto>(ex.Message);
+
+            }
+            
         }
 
         public IDataResult<List<InstallmentOptionDto>> GetAll()
         {
-            var resultList = MapperTool.Mapper.Map<List<InstallmentOption>, List<InstallmentOptionDto>>(_installmentOptionDal.GetAll());
+            try
+            {
+                var resultList = MapperTool.Mapper.Map<List<InstallmentOption>, List<InstallmentOptionDto>>(_installmentOptionDal.GetAll());
 
-            return new SuccessDataResult<List<InstallmentOptionDto>>(resultList, Messages.ItemListed);
+                if(resultList is null)
+                {
+                    return new ErrorDataResult<List<InstallmentOptionDto>>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<List<InstallmentOptionDto>>(resultList, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<List<InstallmentOptionDto>>(ex.Message);
+            }
+            
         }
 
         public IResult Update(InstallmentOptionDto item)

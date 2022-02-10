@@ -32,23 +32,60 @@ namespace BusinessLogic.Concrete
 
         public IResult Delete(PaymentMethodDto item)
         {
-            _paymentMethodDal.Delete(MapperTool.Mapper.Map<PaymentMethodDto, PaymentMethod>(item));
+            try
+            {
+                _paymentMethodDal.Delete(MapperTool.Mapper.Map<PaymentMethodDto, PaymentMethod>(item));
 
-            return new SuccessResult(Messages.ItemDeleted);
+                return new SuccessResult(Messages.ItemDeleted);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IDataResult<PaymentMethodDto> Find(int itemId)
         {
-            var result = MapperTool.Mapper.Map<PaymentMethod, PaymentMethodDto>(_paymentMethodDal.Find(itemId));
+            try
+            {
+                var result = MapperTool.Mapper.Map<PaymentMethod, PaymentMethodDto>(_paymentMethodDal.Find(itemId));
 
-            return new SuccessDataResult<PaymentMethodDto>(result, Messages.ItemListed);
+                if(result is null)
+                {
+                    return new ErrorDataResult<PaymentMethodDto>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<PaymentMethodDto>(result, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<PaymentMethodDto>(ex.Message);
+            }
+            
         }
 
         public IDataResult<List<PaymentMethodDto>> GetAll()
         {
-            var resultList = MapperTool.Mapper.Map<List<PaymentMethod>, List<PaymentMethodDto>>(_paymentMethodDal.GetAll());
+            try
+            {
+                var resultList = MapperTool.Mapper.Map<List<PaymentMethod>, List<PaymentMethodDto>>(_paymentMethodDal.GetAll());
 
-            return new SuccessDataResult<List<PaymentMethodDto>>(resultList, Messages.ItemListed);
+                if(resultList is null)
+                {
+                    return new ErrorDataResult<List<PaymentMethodDto>>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<List<PaymentMethodDto>>(resultList, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<List<PaymentMethodDto>>(ex.Message);
+            }
+            
         }
 
         public IResult Update(PaymentMethodDto item)

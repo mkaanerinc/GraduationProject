@@ -12,5 +12,6 @@ namespace BusinessLogic.Constants
         public readonly static string ItemDeleted = "Başarılı bir şekilde silindi.";
         public readonly static string ItemUpdated = "Başarılı bir şekilde güncellendi.";
         public readonly static string ItemListed = "Başarılı bir şekilde listelendi.";
+        public readonly static string NotFound = "Ürün bulunamadı.";
     }
 }

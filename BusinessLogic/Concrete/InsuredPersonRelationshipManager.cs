@@ -32,23 +32,60 @@ namespace BusinessLogic.Concrete
 
         public IResult Delete(InsuredPersonRelationshipDto item)
         {
-            _insuredPersonRelationshipDal.Delete(MapperTool.Mapper.Map<InsuredPersonRelationshipDto, InsuredPersonRelationship>(item));
+            try
+            {
+                _insuredPersonRelationshipDal.Delete(MapperTool.Mapper.Map<InsuredPersonRelationshipDto, InsuredPersonRelationship>(item));
 
-            return new SuccessResult(Messages.ItemDeleted);
+                return new SuccessResult(Messages.ItemDeleted);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IDataResult<InsuredPersonRelationshipDto> Find(int itemId)
         {
-            var result = MapperTool.Mapper.Map<InsuredPersonRelationship, InsuredPersonRelationshipDto>(_insuredPersonRelationshipDal.Find(itemId));
+            try
+            {
+                var result = MapperTool.Mapper.Map<InsuredPersonRelationship, InsuredPersonRelationshipDto>(_insuredPersonRelationshipDal.Find(itemId));
 
-            return new SuccessDataResult<InsuredPersonRelationshipDto>(result, Messages.ItemListed);
+                if(result is null)
+                {
+                    return new ErrorDataResult<InsuredPersonRelationshipDto>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<InsuredPersonRelationshipDto>(result, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<InsuredPersonRelationshipDto>(ex.Message);
+            }
+            
         }
 
         public IDataResult<List<InsuredPersonRelationshipDto>> GetAll()
         {
-            var resultList = MapperTool.Mapper.Map<List<InsuredPersonRelationship>, List<InsuredPersonRelationshipDto>>(_insuredPersonRelationshipDal.GetAll());
+            try
+            {
+                var resultList = MapperTool.Mapper.Map<List<InsuredPersonRelationship>, List<InsuredPersonRelationshipDto>>(_insuredPersonRelationshipDal.GetAll());
 
-            return new SuccessDataResult<List<InsuredPersonRelationshipDto>>(resultList, Messages.ItemListed);
+                if(resultList is null)
+                {
+                    return new ErrorDataResult<List<InsuredPersonRelationshipDto>>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<List<InsuredPersonRelationshipDto>>(resultList, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<List<InsuredPersonRelationshipDto>>(ex.Message);
+            }
+            
         }
 
         public IResult Update(InsuredPersonRelationshipDto item)

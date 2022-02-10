@@ -32,23 +32,60 @@ namespace BusinessLogic.Concrete
 
         public IResult Delete(OrderDto item)
         {
-            _orderDal.Delete(MapperTool.Mapper.Map<OrderDto, Order>(item));
+            try
+            {
+                _orderDal.Delete(MapperTool.Mapper.Map<OrderDto, Order>(item));
 
-            return new SuccessResult(Messages.ItemDeleted);
+                return new SuccessResult(Messages.ItemDeleted);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IDataResult<OrderDto> Find(int itemId)
         {
-            var result = MapperTool.Mapper.Map<Order, OrderDto>(_orderDal.Find(itemId));
+            try
+            {
+                var result = MapperTool.Mapper.Map<Order, OrderDto>(_orderDal.Find(itemId));
 
-            return new SuccessDataResult<OrderDto>(result, Messages.ItemListed);
+                if(result is null)
+                {
+                    return new ErrorDataResult<OrderDto>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<OrderDto>(result, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<OrderDto>(ex.Message);
+            }
+            
         }
 
         public IDataResult<List<OrderDto>> GetAll()
         {
-            var resultList = MapperTool.Mapper.Map<List<Order>, List<OrderDto>>(_orderDal.GetAll());
+            try
+            {
+                var resultList = MapperTool.Mapper.Map<List<Order>, List<OrderDto>>(_orderDal.GetAll());
 
-            return new SuccessDataResult<List<OrderDto>>(resultList, Messages.ItemListed);
+                if(resultList is null)
+                {
+                    return new ErrorDataResult<List<OrderDto>>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<List<OrderDto>>(resultList, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<List<OrderDto>>(ex.Message);
+            }
+            
         }
 
         public IResult Update(OrderDto item)
