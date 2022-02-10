@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Abstract;
 using BusinessLogic.Constants;
 using BusinessLogic.MappingRules.AutoMapper;
+using Core.Utilities.Business;
 using Core.Utilities.Results.Abstract;
 using Core.Utilities.Results.Concrete;
 using DataAccess.Abstract;
@@ -23,11 +24,31 @@ namespace BusinessLogic.Concrete
             _installmentOptionDal = installmentOptionDal;
         }
 
+        #region Methods
+
         public IResult Add(InstallmentOptionDto item)
         {
-            _installmentOptionDal.Add(MapperTool.Mapper.Map<InstallmentOptionDto, InstallmentOption>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfInstallmentOptionNameExists(item.InstallmentOptionName)
+                    );
 
-            return new SuccessResult(Messages.ItemAdded);
+                if(result is not null)
+                {
+                    return result;
+                }
+
+                _installmentOptionDal.Add(MapperTool.Mapper.Map<InstallmentOptionDto, InstallmentOption>(item));
+
+                return new SuccessResult(Messages.ItemAdded);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IResult Delete(InstallmentOptionDto item)
@@ -43,7 +64,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorResult(ex.Message);
             }
-            
+
         }
 
         public IDataResult<InstallmentOptionDto> Find(int itemId)
@@ -52,7 +73,7 @@ namespace BusinessLogic.Concrete
             {
                 var result = MapperTool.Mapper.Map<InstallmentOption, InstallmentOptionDto>(_installmentOptionDal.Find(itemId));
 
-                if(result is null)
+                if (result is null)
                 {
                     return new ErrorDataResult<InstallmentOptionDto>(Messages.NotFound);
                 }
@@ -64,7 +85,7 @@ namespace BusinessLogic.Concrete
                 return new ErrorDataResult<InstallmentOptionDto>(ex.Message);
 
             }
-            
+
         }
 
         public IDataResult<List<InstallmentOptionDto>> GetAll()
@@ -73,7 +94,7 @@ namespace BusinessLogic.Concrete
             {
                 var resultList = MapperTool.Mapper.Map<List<InstallmentOption>, List<InstallmentOptionDto>>(_installmentOptionDal.GetAll());
 
-                if(resultList is null)
+                if (resultList is null)
                 {
                     return new ErrorDataResult<List<InstallmentOptionDto>>(Messages.NotFound);
                 }
@@ -85,14 +106,50 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<List<InstallmentOptionDto>>(ex.Message);
             }
-            
+
         }
 
         public IResult Update(InstallmentOptionDto item)
         {
-            _installmentOptionDal.Update(MapperTool.Mapper.Map<InstallmentOptionDto, InstallmentOption>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfInstallmentOptionNameExists(item.InstallmentOptionName)
+                    );
 
-            return new SuccessResult(Messages.ItemUpdated);
+                if(result is not null)
+                {
+                    return result;
+                }
+
+                _installmentOptionDal.Update(MapperTool.Mapper.Map<InstallmentOptionDto, InstallmentOption>(item));
+
+                return new SuccessResult(Messages.ItemUpdated);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
+
+        #endregion
+
+        #region BusinessRules
+
+        private IResult CheckIfInstallmentOptionNameExists(string installmentOptionName)
+        {
+            bool result = _installmentOptionDal.GetAll(i => i.InstallmentOptionName == installmentOptionName).Any();
+
+            if(result)
+            {
+                return new ErrorResult(Messages.NameIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        #endregion
     }
 }

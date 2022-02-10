@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Abstract;
 using BusinessLogic.Constants;
 using BusinessLogic.MappingRules.AutoMapper;
+using Core.Utilities.Business;
 using Core.Utilities.Results.Abstract;
 using Core.Utilities.Results.Concrete;
 using DataAccess.Abstract;
@@ -22,12 +23,31 @@ namespace BusinessLogic.Concrete
         {
             _paymentMethodDal = paymentMethodDal;
         }
+        #region Methods
 
         public IResult Add(PaymentMethodDto item)
         {
-            _paymentMethodDal.Add(MapperTool.Mapper.Map<PaymentMethodDto, PaymentMethod>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfPaymentMethodNameExists(item.PaymentMethodName)
+                    );
 
-            return new SuccessResult(Messages.ItemAdded);
+                if(result is not null)
+                {
+                    return result;
+                }
+
+                _paymentMethodDal.Add(MapperTool.Mapper.Map<PaymentMethodDto, PaymentMethod>(item));
+
+                return new SuccessResult(Messages.ItemAdded);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IResult Delete(PaymentMethodDto item)
@@ -43,7 +63,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorResult(ex.Message);
             }
-            
+
         }
 
         public IDataResult<PaymentMethodDto> Find(int itemId)
@@ -52,7 +72,7 @@ namespace BusinessLogic.Concrete
             {
                 var result = MapperTool.Mapper.Map<PaymentMethod, PaymentMethodDto>(_paymentMethodDal.Find(itemId));
 
-                if(result is null)
+                if (result is null)
                 {
                     return new ErrorDataResult<PaymentMethodDto>(Messages.NotFound);
                 }
@@ -64,7 +84,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<PaymentMethodDto>(ex.Message);
             }
-            
+
         }
 
         public IDataResult<List<PaymentMethodDto>> GetAll()
@@ -73,7 +93,7 @@ namespace BusinessLogic.Concrete
             {
                 var resultList = MapperTool.Mapper.Map<List<PaymentMethod>, List<PaymentMethodDto>>(_paymentMethodDal.GetAll());
 
-                if(resultList is null)
+                if (resultList is null)
                 {
                     return new ErrorDataResult<List<PaymentMethodDto>>(Messages.NotFound);
                 }
@@ -85,14 +105,50 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<List<PaymentMethodDto>>(ex.Message);
             }
-            
+
         }
 
         public IResult Update(PaymentMethodDto item)
         {
-            _paymentMethodDal.Update(MapperTool.Mapper.Map<PaymentMethodDto, PaymentMethod>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfPaymentMethodNameExists(item.PaymentMethodName)
+                    );
 
-            return new SuccessResult(Messages.ItemUpdated);
+                if(result is not null)
+                {
+                    return result;
+                }
+
+                _paymentMethodDal.Update(MapperTool.Mapper.Map<PaymentMethodDto, PaymentMethod>(item));
+
+                return new SuccessResult(Messages.ItemUpdated);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
+
+        #endregion
+
+        #region Business Rules
+
+        private IResult CheckIfPaymentMethodNameExists(string paymentMethodName)
+        {
+            bool result = _paymentMethodDal.GetAll(p => p.PaymentMethodName == paymentMethodName).Any();
+
+            if(result)
+            {
+                return new ErrorResult(Messages.NameIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        #endregion
     }
 }

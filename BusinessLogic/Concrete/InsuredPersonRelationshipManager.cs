@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Abstract;
 using BusinessLogic.Constants;
 using BusinessLogic.MappingRules.AutoMapper;
+using Core.Utilities.Business;
 using Core.Utilities.Results.Abstract;
 using Core.Utilities.Results.Concrete;
 using DataAccess.Abstract;
@@ -23,11 +24,31 @@ namespace BusinessLogic.Concrete
             _insuredPersonRelationshipDal = insuredPersonRelationshipDal;
         }
 
+        #region Methods
+
         public IResult Add(InsuredPersonRelationshipDto item)
         {
-            _insuredPersonRelationshipDal.Add(MapperTool.Mapper.Map<InsuredPersonRelationshipDto, InsuredPersonRelationship>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfInsuredPersonRelationshipExists(item.InsuredPersonRelationshipName)
+                    );
 
-            return new SuccessResult(Messages.ItemAdded);
+                if(result is not null)
+                {
+                    return result;
+                }
+
+                _insuredPersonRelationshipDal.Add(MapperTool.Mapper.Map<InsuredPersonRelationshipDto, InsuredPersonRelationship>(item));
+
+                return new SuccessResult(Messages.ItemAdded);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IResult Delete(InsuredPersonRelationshipDto item)
@@ -43,7 +64,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorResult(ex.Message);
             }
-            
+
         }
 
         public IDataResult<InsuredPersonRelationshipDto> Find(int itemId)
@@ -52,7 +73,7 @@ namespace BusinessLogic.Concrete
             {
                 var result = MapperTool.Mapper.Map<InsuredPersonRelationship, InsuredPersonRelationshipDto>(_insuredPersonRelationshipDal.Find(itemId));
 
-                if(result is null)
+                if (result is null)
                 {
                     return new ErrorDataResult<InsuredPersonRelationshipDto>(Messages.NotFound);
                 }
@@ -64,7 +85,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<InsuredPersonRelationshipDto>(ex.Message);
             }
-            
+
         }
 
         public IDataResult<List<InsuredPersonRelationshipDto>> GetAll()
@@ -73,7 +94,7 @@ namespace BusinessLogic.Concrete
             {
                 var resultList = MapperTool.Mapper.Map<List<InsuredPersonRelationship>, List<InsuredPersonRelationshipDto>>(_insuredPersonRelationshipDal.GetAll());
 
-                if(resultList is null)
+                if (resultList is null)
                 {
                     return new ErrorDataResult<List<InsuredPersonRelationshipDto>>(Messages.NotFound);
                 }
@@ -85,14 +106,50 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<List<InsuredPersonRelationshipDto>>(ex.Message);
             }
-            
+
         }
 
         public IResult Update(InsuredPersonRelationshipDto item)
         {
-            _insuredPersonRelationshipDal.Update(MapperTool.Mapper.Map<InsuredPersonRelationshipDto, InsuredPersonRelationship>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfInsuredPersonRelationshipExists(item.InsuredPersonRelationshipName)
+                    );
 
-            return new SuccessResult(Messages.ItemUpdated);
+                if(result is not null)
+                {
+                    return result;
+                }
+
+                _insuredPersonRelationshipDal.Update(MapperTool.Mapper.Map<InsuredPersonRelationshipDto, InsuredPersonRelationship>(item));
+
+                return new SuccessResult(Messages.ItemUpdated);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
+
+        #endregion
+
+        #region Business Rules
+
+        private IResult CheckIfInsuredPersonRelationshipExists(string insuredPersonRelationshipName)
+        {
+            bool result = _insuredPersonRelationshipDal.GetAll(i => i.InsuredPersonRelationshipName == insuredPersonRelationshipName).Any();
+
+            if(result)
+            {
+                return new ErrorResult(Messages.NameIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        #endregion
     }
 }

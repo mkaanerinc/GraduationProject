@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Abstract;
 using BusinessLogic.Constants;
 using BusinessLogic.MappingRules.AutoMapper;
+using Core.Utilities.Business;
 using Core.Utilities.Results.Abstract;
 using Core.Utilities.Results.Concrete;
 using DataAccess.Abstract;
@@ -23,11 +24,33 @@ namespace BusinessLogic.Concrete
             _productDal = productDal;
         }
 
+        #region Methods
+
         public IResult Add(ProductDto item)
         {
-            _productDal.Add(MapperTool.Mapper.Map<ProductDto, Product>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfProductNameExists(item.ProductName),
+                    CheckIfProductPriceCorrect(item.ProductPrice)
+                    );
 
-            return new SuccessResult(Messages.ItemAdded);
+                if (result is not null)
+                {
+                    return result;
+                }
+
+                _productDal.Add(MapperTool.Mapper.Map<ProductDto, Product>(item));
+
+                return new SuccessResult(Messages.ItemAdded);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+
+
         }
 
         public IResult Delete(ProductDto item)
@@ -43,7 +66,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorResult(ex.Message);
             }
-            
+
         }
 
         public IDataResult<ProductDto> Find(int itemId)
@@ -52,7 +75,7 @@ namespace BusinessLogic.Concrete
             {
                 var result = MapperTool.Mapper.Map<Product, ProductDto>(_productDal.Find(itemId));
 
-                if(result is null)
+                if (result is null)
                 {
                     return new ErrorDataResult<ProductDto>(Messages.NotFound);
                 }
@@ -64,7 +87,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<ProductDto>(ex.Message);
             }
-            
+
         }
 
         public IDataResult<List<ProductDto>> GetAll()
@@ -73,7 +96,7 @@ namespace BusinessLogic.Concrete
             {
                 var resultList = MapperTool.Mapper.Map<List<Product>, List<ProductDto>>(_productDal.GetAll());
 
-                if(resultList is null)
+                if (resultList is null)
                 {
                     return new ErrorDataResult<List<ProductDto>>(Messages.NotFound);
                 }
@@ -85,14 +108,62 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<List<ProductDto>>(ex.Message);
             }
-            
+
         }
 
         public IResult Update(ProductDto item)
         {
-            _productDal.Update(MapperTool.Mapper.Map<ProductDto, Product>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfProductNameExists(item.ProductName),
+                    CheckIfProductPriceCorrect(item.ProductPrice)
+                    );
 
-            return new SuccessResult(Messages.ItemUpdated);
+                if (result is not null)
+                {
+                    return result;
+                }
+
+                _productDal.Update(MapperTool.Mapper.Map<ProductDto, Product>(item));
+
+                return new SuccessResult(Messages.ItemUpdated);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+
         }
+
+        #endregion
+
+        #region Business Rules
+
+        private IResult CheckIfProductNameExists(string productName)
+        {
+            bool result = _productDal.GetAll(p => p.ProductName == productName).Any();
+
+            if (result)
+            {
+                return new ErrorResult(Messages.NameIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfProductPriceCorrect(decimal productPrice)
+        {
+            if (productPrice < 100 /* && productPrice <= 0 */ )
+            {
+                return new ErrorResult(Messages.ProductPriceInvalid);
+            }
+
+            return new SuccessResult();
+        }
+
+        #endregion
+
     }
 }
