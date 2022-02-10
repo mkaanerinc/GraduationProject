@@ -15,6 +15,8 @@ namespace BusinessLogic.Constants
         public readonly static string NotFound = "Ürün bulunamadı.";
 
         public readonly static string NameIsExists = "Ürün ismi kullanılmaktadır.";
+        public readonly static string InfoIsExists = "Girdiğiniz bilgi sistemimizde kayıtlıdır.";
         public readonly static string ProductPriceInvalid = "Ürün fiyatı geçersizdir.";
+        public readonly static string GenderInvalid = "Cinsiyet bilgisi hatalıdır.";
     }
 }

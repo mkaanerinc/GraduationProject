@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Abstract;
 using BusinessLogic.Constants;
 using BusinessLogic.MappingRules.AutoMapper;
+using Core.Utilities.Business;
 using Core.Utilities.Results.Abstract;
 using Core.Utilities.Results.Concrete;
 using DataAccess.Abstract;
@@ -17,17 +18,42 @@ namespace BusinessLogic.Concrete
     public class InsuredPersonManager : IInsuredPersonService<InsuredPerson, InsuredPersonDto>
     {
         protected readonly IInsuredPersonDal _insuredPersonDal;
+        protected readonly ICustomerService<Customer, CustomerDto> _customerService;
 
-        public InsuredPersonManager(IInsuredPersonDal insuredPersonDal)
+        public InsuredPersonManager(IInsuredPersonDal insuredPersonDal, ICustomerService<Customer, CustomerDto> customerService)
         {
             _insuredPersonDal = insuredPersonDal;
+            _customerService = customerService;
         }
+
+        #region Methods
 
         public IResult Add(InsuredPersonDto item)
         {
-            _insuredPersonDal.Add(MapperTool.Mapper.Map<InsuredPersonDto, InsuredPerson>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfInsuredPersonIdentityNoExists(item.InsuredPersonIdentityNo),
+                    CheckIfInsuredPersonEmailExists(item.InsuredPersonEmail),
+                    CheckIfInsuredPersonGSMExists(item.InsuredPersonGSM),
+                    CheckIfInsuredPersonGenderValid(item.InsuredPersonGender,item.CustomerId,item.InsuredPersonRelationshipId)
+                    );
 
-            return new SuccessResult(Messages.ItemAdded);
+                if(result is not null)
+                {
+                    return result;
+                }
+
+                _insuredPersonDal.Add(MapperTool.Mapper.Map<InsuredPersonDto, InsuredPerson>(item));
+
+                return new SuccessResult(Messages.ItemAdded);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
 
         public IResult Delete(InsuredPersonDto item)
@@ -43,7 +69,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorResult(ex.Message);
             }
-            
+
         }
 
         public IDataResult<InsuredPersonDto> Find(int itemId)
@@ -52,7 +78,7 @@ namespace BusinessLogic.Concrete
             {
                 var result = MapperTool.Mapper.Map<InsuredPerson, InsuredPersonDto>(_insuredPersonDal.Find(itemId));
 
-                if(result is null)
+                if (result is null)
                 {
                     return new ErrorDataResult<InsuredPersonDto>(Messages.NotFound);
                 }
@@ -64,7 +90,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<InsuredPersonDto>(ex.Message);
             }
-            
+
         }
 
         public IDataResult<List<InsuredPersonDto>> GetAll()
@@ -73,7 +99,7 @@ namespace BusinessLogic.Concrete
             {
                 var resultList = MapperTool.Mapper.Map<List<InsuredPerson>, List<InsuredPersonDto>>(_insuredPersonDal.GetAll());
 
-                if(resultList is null)
+                if (resultList is null)
                 {
                     return new ErrorDataResult<List<InsuredPersonDto>>(Messages.NotFound);
                 }
@@ -85,14 +111,106 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<List<InsuredPersonDto>>(ex.Message);
             }
-           
+
         }
 
         public IResult Update(InsuredPersonDto item)
         {
-            _insuredPersonDal.Update(MapperTool.Mapper.Map<InsuredPersonDto, InsuredPerson>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfInsuredPersonIdentityNoExists(item.InsuredPersonIdentityNo),
+                    CheckIfInsuredPersonEmailExists(item.InsuredPersonEmail),
+                    CheckIfInsuredPersonGSMExists(item.InsuredPersonGSM),
+                    CheckIfInsuredPersonGenderValid(item.InsuredPersonGender, item.CustomerId, item.InsuredPersonRelationshipId)
+                    );
 
-            return new SuccessResult(Messages.ItemUpdated);
+                if (result is not null)
+                {
+                    return result;
+                }
+
+                _insuredPersonDal.Update(MapperTool.Mapper.Map<InsuredPersonDto, InsuredPerson>(item));
+
+                return new SuccessResult(Messages.ItemUpdated);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
+
+        #endregion
+
+        #region BusinessRules
+
+        private IResult CheckIfInsuredPersonIdentityNoExists(string insuredPersonIdentityNo)
+        {
+            bool result = _insuredPersonDal.GetAll(c => c.InsuredPersonIdentityNo == insuredPersonIdentityNo).Any();
+
+            if (result)
+            {
+                return new ErrorResult(Messages.InfoIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfInsuredPersonEmailExists(string insuredPersonEmail)
+        {
+            bool result = _insuredPersonDal.GetAll(c => c.InsuredPersonEmail == insuredPersonEmail).Any();
+
+            if (result)
+            {
+                return new ErrorResult(Messages.InfoIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfInsuredPersonGSMExists(string insuredPersonGSM)
+        {
+            bool result = _insuredPersonDal.GetAll(c => c.InsuredPersonGSM == insuredPersonGSM).Any();
+
+            if (result)
+            {
+                return new ErrorResult(Messages.InfoIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfInsuredPersonGenderValid(bool insuredPersonGender, int insuredPersonCustomerId, int insuredPersonRelationshipId)
+        {
+            var customer = _customerService.Find(insuredPersonCustomerId);
+
+            var customerGender = customer.Data.CustomerGender;
+
+            if (insuredPersonRelationshipId == 2) // Eşi ise cinsiyetleri farklı olmalıdır.
+            {        
+
+                if (customerGender == insuredPersonGender)
+                {
+                    return new ErrorResult(Messages.GenderInvalid);
+                }
+                
+
+            } else if (insuredPersonRelationshipId == 1) // Kendisi ise cinsiyetleri aynı olmalıdır.
+            {
+
+                if (customerGender != insuredPersonGender)
+                {
+                    return new ErrorResult(Messages.GenderInvalid);
+                }
+
+            }
+
+            return new SuccessResult();
+
+        }
+
+        #endregion
     }
 }

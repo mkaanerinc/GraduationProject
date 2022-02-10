@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Abstract;
 using BusinessLogic.Constants;
 using BusinessLogic.MappingRules.AutoMapper;
+using Core.Utilities.Business;
 using Core.Utilities.Results.Abstract;
 using Core.Utilities.Results.Concrete;
 using DataAccess.Abstract;
@@ -23,11 +24,34 @@ namespace BusinessLogic.Concrete
             _customerDal = customerDal;
         }
 
+        #region Methods
+
         public IResult Add(CustomerDto item)
         {
-            _customerDal.Add(MapperTool.Mapper.Map<CustomerDto, Customer>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfCustomerIdentityNoExists(item.CustomerIdentityNo),
+                    CheckIfCustomerEmailExists(item.CustomerEmail),
+                    CheckIfCustomerGSMExists(item.CustomerGSM)
+                    );
 
-            return new SuccessResult(Messages.ItemAdded);
+                if(result is not null)
+                {
+                    return result;
+                }
+
+                _customerDal.Add(MapperTool.Mapper.Map<CustomerDto, Customer>(item));
+
+                return new SuccessResult(Messages.ItemAdded);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+
+            
         }
 
         public IResult Delete(CustomerDto item)
@@ -43,7 +67,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorResult(ex.Message);
             }
-            
+
         }
 
         public IDataResult<CustomerDto> Find(int itemId)
@@ -64,7 +88,7 @@ namespace BusinessLogic.Concrete
 
                 return new ErrorDataResult<CustomerDto>(ex.Message);
             }
-            
+
         }
 
         public IDataResult<List<CustomerDto>> GetAll()
@@ -85,14 +109,76 @@ namespace BusinessLogic.Concrete
                 return new ErrorDataResult<List<CustomerDto>>(ex.Message);
 
             }
-            
+
         }
 
         public IResult Update(CustomerDto item)
         {
-            _customerDal.Update(MapperTool.Mapper.Map<CustomerDto, Customer>(item));
+            try
+            {
+                IResult result = BusinessRules.Run(
+                    CheckIfCustomerIdentityNoExists(item.CustomerIdentityNo),
+                    CheckIfCustomerEmailExists(item.CustomerEmail),
+                    CheckIfCustomerGSMExists(item.CustomerGSM)
+                    );
 
-            return new SuccessResult(Messages.ItemUpdated);
+                if(result is not null)
+                {
+                    return result;
+                }
+
+                _customerDal.Update(MapperTool.Mapper.Map<CustomerDto, Customer>(item));
+
+                return new SuccessResult(Messages.ItemUpdated);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorResult(ex.Message);
+            }
+            
         }
+
+        #endregion
+
+        #region BusinessRules
+
+        private IResult CheckIfCustomerIdentityNoExists(string customerIdentityNo)
+        {
+            bool result = _customerDal.GetAll(c => c.CustomerIdentityNo == customerIdentityNo).Any();
+
+            if(result)
+            {
+                return new ErrorResult(Messages.InfoIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfCustomerEmailExists(string customerEmail)
+        {
+            bool result = _customerDal.GetAll(c => c.CustomerEmail == customerEmail).Any();
+
+            if (result)
+            {
+                return new ErrorResult(Messages.InfoIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfCustomerGSMExists(string customerGSM)
+        {
+            bool result = _customerDal.GetAll(c => c.CustomerGSM == customerGSM).Any();
+
+            if (result)
+            {
+                return new ErrorResult(Messages.InfoIsExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        #endregion
     }
 }
