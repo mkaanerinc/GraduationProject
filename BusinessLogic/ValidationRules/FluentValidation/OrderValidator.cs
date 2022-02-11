@@ -27,8 +27,6 @@ namespace BusinessLogic.ValidationRules.FluentValidation
             RuleFor(o => o.OrderPrice)
                 .NotEmpty();
 
-            RuleFor(o => o.OrderStatus)
-                .NotEmpty();
         }
     }
 }

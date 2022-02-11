@@ -179,7 +179,7 @@ namespace BusinessLogic.Concrete
 
                 int installmentInt = int.Parse(installment); // Seçilen taksiti alırız.
 
-                decimal newOrderPrice = item.OrderPrice * (5/100) * installmentInt; // Yeni fiyat hesaplanması
+                decimal newOrderPrice = item.OrderPrice + (15 * installmentInt); // Yeni fiyat hesaplanması
 
                 item.OrderPrice = newOrderPrice;
             }

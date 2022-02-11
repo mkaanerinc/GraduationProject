@@ -3,6 +3,7 @@ using Entity.Concrete;
 using Entity.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading;
 
 namespace WebAPI.Controllers
 {
@@ -34,6 +35,8 @@ namespace WebAPI.Controllers
         [HttpGet("GetInsuredPersonDetails")]
         public IActionResult GetInsuredPersonDetails()
         {
+            Thread.Sleep(1000);
+
             var result = _insuredPersonService.GetInsuredPersonDetails();
 
             if(result.Success)
