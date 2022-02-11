@@ -31,6 +31,19 @@ namespace WebAPI.Controllers
 
         }
 
+        [HttpGet("GetInsuredPersonDetails")]
+        public IActionResult GetInsuredPersonDetails()
+        {
+            var result = _insuredPersonService.GetInsuredPersonDetails();
+
+            if(result.Success)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+        }
+
         [HttpGet("Find")]
         public IActionResult Find(int itemId)
         {

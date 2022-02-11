@@ -13,6 +13,7 @@ namespace BusinessLogic.Abstract
     {
         IDataResult<List<InsuredPersonDto>> GetAll();
         IDataResult<InsuredPersonDto> Find(int insuredPersonId);
+        IDataResult<List<InsuredPersonDetailDto>> GetInsuredPersonDetails();
         IResult Add(InsuredPersonDto insuredPerson);
         IResult Delete(InsuredPersonDto insuredPerson);
         IResult Update(InsuredPersonDto insuredPerson);

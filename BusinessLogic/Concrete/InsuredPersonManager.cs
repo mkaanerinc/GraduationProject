@@ -118,6 +118,27 @@ namespace BusinessLogic.Concrete
 
         }
 
+        public IDataResult<List<InsuredPersonDetailDto>> GetInsuredPersonDetails()
+        {
+            try
+            {
+                var resultList = _insuredPersonDal.GetInsuredPersonDetails();
+
+                if(resultList is null)
+                {
+                    return new ErrorDataResult<List<InsuredPersonDetailDto>>(Messages.NotFound);
+                }
+
+                return new SuccessDataResult<List<InsuredPersonDetailDto>>(resultList, Messages.ItemListed);
+            }
+            catch (Exception ex)
+            {
+
+                return new ErrorDataResult<List<InsuredPersonDetailDto>>(ex.Message);
+            }
+            
+        }
+
         public IResult Update(InsuredPersonDto item)
         {
             try
@@ -215,7 +236,7 @@ namespace BusinessLogic.Concrete
 
             return new SuccessResult();
 
-        }
+        }      
 
         #endregion
     }
