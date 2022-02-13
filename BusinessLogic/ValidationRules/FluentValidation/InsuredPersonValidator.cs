@@ -31,9 +31,6 @@ namespace BusinessLogic.ValidationRules.FluentValidation
                 .NotEmpty()
                 .Length(11);
 
-            RuleFor(c => c.InsuredPersonGender)
-                .NotEmpty();
-
             RuleFor(c => c.InsuredPersonBirthdate)
                 .NotEmpty()
                 .Must(CheckInsuredPersonAge).When(c => c.InsuredPersonRelationshipId == 2).WithMessage("Sigortalı 18 yaşından büyük olmalıdır.");

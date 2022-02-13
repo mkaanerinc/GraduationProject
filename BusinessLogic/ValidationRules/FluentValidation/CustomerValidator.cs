@@ -25,8 +25,6 @@ namespace BusinessLogic.ValidationRules.FluentValidation
                 .NotEmpty()
                 .Length(11);
 
-            RuleFor(c => c.CustomerGender)
-                .NotEmpty();
 
             RuleFor(c => c.CustomerBirthdate)
                 .NotEmpty()
