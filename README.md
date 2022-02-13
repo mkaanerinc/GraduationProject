@@ -13,6 +13,20 @@
     <br />
   </p>
 </p>
+<br />
+<p>
+  <h2>Graduation Project Frontend</h2>
+  <a href="https://github.com/mkaanerinc/Graduation-Project-Angular-I"> 
+   <p>
+    Graduation Project Angular I
+   </p>
+  </a>
+  <a href="https://github.com/mkaanerinc/Graduation-Project-Angular-II"> 
+   <p>
+    Graduation Project Angular II
+   </p>
+  </a>
+<br />
 
 # About The Project
 
