@@ -24,6 +24,7 @@
 ![REST API](https://img.shields.io/badge/REST%20API-02569B.svg?&style=flat&logo=rest&logoColor=white)&nbsp;
 ![Entity-Framework](https://img.shields.io/badge/Entity%20Framework%20Core-004880?style=flat&logo=nuget&logoColor=white)&nbsp;
 [![Autofac](https://img.shields.io/badge/Autofac-004880?style=flat&logo&logo=nuget&logoColor=white)](https://autofac.org/)&nbsp;
+[![AutoMapper](https://img.shields.io/badge/AutoMapper-004880?style=flat&logo&logo=nuget&logoColor=white)](https://automapper.org/)&nbsp;
 [![Fluent-Validation](https://img.shields.io/badge/Fluent%20Validation-004880?style=flat&logo&logo=nuget&logoColor=white)](https://fluentvalidation.net/)&nbsp;
 ![Visual Studio](https://img.shields.io/badge/Visual%20Studio-5C2D91.svg?style=flat&logo=visual-studio&logoColor=white)&nbsp;
 
